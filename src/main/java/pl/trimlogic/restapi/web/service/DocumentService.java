@@ -49,12 +49,27 @@ public class DocumentService {
                 .map(document -> {
                     DocumentDto documentDto = new DocumentDto();
                     documentDto.setId(document.getId());
+                    documentDto.setUsername(document.getUsername());
                     documentDto.setFileName(document.getFileName());
                     documentDto.setCreated(document.getCreated());
                     documentDto.setLastModified(document.getLastModified());
                     return documentDto;
                 })
                 .collect(Collectors.toList());
+
+    }
+
+    public DocumentDto getDocument(String id) {
+        Document document = documentRepository.getDocument(id);
+
+        DocumentDto documentDto = new DocumentDto();
+        documentDto.setId(document.getId());
+        documentDto.setUsername(document.getUsername());
+        documentDto.setFileName(document.getFileName());
+        documentDto.setLastModified(document.getLastModified());
+        documentDto.setCreated(document.getCreated());
+
+        return documentDto;
 
     }
 }

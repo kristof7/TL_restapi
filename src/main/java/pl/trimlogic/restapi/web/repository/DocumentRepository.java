@@ -3,6 +3,7 @@ package pl.trimlogic.restapi.web.repository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pl.trimlogic.restapi.web.exception.DocumentNotFoundException;
 import pl.trimlogic.restapi.web.model.Document;
 
 import java.util.ArrayList;
@@ -28,5 +29,23 @@ public class DocumentRepository {
 
     public void saveDocument(Document document) {
         documents.put(document.getId(), document);
+    }
+
+    public Document getDocument(String id) {
+        Document document = documents.get(id);
+
+        if (document == null) {
+            throw new DocumentNotFoundException(String.format("Document with id %s not " +
+                    "found.", id));
+        }
+
+        Document documentToReturn = new Document();
+        documentToReturn.setId(document.getId());
+        documentToReturn.setUsername(document.getUsername());
+        documentToReturn.setFileName(document.getFileName());
+        documentToReturn.setCreated(document.getCreated());
+        documentToReturn.setLastModified(document.getLastModified());
+
+        return documentToReturn;
     }
 }
