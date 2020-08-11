@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class Document {
 
-    private String id;
+    private String docId;
     private String username;
     private String fileName;
     private Long created;
@@ -13,12 +13,12 @@ public class Document {
 
     //----------------- G & S -----------------------------
 
-    public String getId() {
-        return id;
+    public String getDocId() {
+        return docId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setDocId(String docId) {
+        this.docId = docId;
     }
 
     public String getUsername() {
@@ -62,7 +62,7 @@ public class Document {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Document document = (Document) o;
-        return Objects.equals(id, document.id) &&
+        return Objects.equals(docId, document.docId) &&
                 Objects.equals(username, document.username) &&
                 Objects.equals(fileName, document.fileName) &&
                 Objects.equals(created, document.created) &&
@@ -71,6 +71,6 @@ public class Document {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username, fileName, created, lastModified);
+        return Objects.hash(docId, username, fileName, created, lastModified);
     }
 }

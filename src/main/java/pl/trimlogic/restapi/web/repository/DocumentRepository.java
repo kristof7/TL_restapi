@@ -28,7 +28,7 @@ public class DocumentRepository {
     }
 
     public void saveDocument(Document document) {
-        documents.put(document.getId(), document);
+        documents.put(document.getDocId(), document);
     }
 
     public Document getDocument(String id) {
@@ -40,7 +40,7 @@ public class DocumentRepository {
         }
 
         Document documentToReturn = new Document();
-        documentToReturn.setId(document.getId());
+        documentToReturn.setDocId(document.getDocId());
         documentToReturn.setUsername(document.getUsername());
         documentToReturn.setFileName(document.getFileName());
         documentToReturn.setCreated(document.getCreated());

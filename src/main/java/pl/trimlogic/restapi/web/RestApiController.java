@@ -30,9 +30,9 @@ public class RestApiController {
         return documentService.getDocuments();
     }
 
-    @GetMapping("/list/{id}")
-    DocumentDto getDocument(@PathVariable String id) {
-        return documentService.getDocument(id);
+    @GetMapping("/list/{docId}")
+    DocumentDto getDocument(@PathVariable String docId) {
+        return documentService.getDocument(docId);
     }
 
     @PostMapping("/list")

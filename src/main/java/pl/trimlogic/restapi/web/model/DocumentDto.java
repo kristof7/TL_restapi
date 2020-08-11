@@ -2,7 +2,7 @@ package pl.trimlogic.restapi.web.model;
 
 public class DocumentDto {
 
-    private String id;
+    private String docId;
     private String username;
     private String fileName;
     private Long created;
@@ -10,12 +10,12 @@ public class DocumentDto {
 
     //----------------- G & S -----------------------------
 
-    public String getId() {
-        return id;
+    public String getDocId() {
+        return docId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setDocId(String docId) {
+        this.docId = docId;
     }
 
     public String getUsername() {

@@ -25,7 +25,7 @@ public class DocumentService {
         String id = UUID.randomUUID().toString();
         Long timestamp = System.currentTimeMillis();
         Document document = new Document();
-        document.setId(id);
+        document.setDocId(id);
         document.setCreated(timestamp);
         document.setUsername(newDocumentDto.getUsername());
         document.setFileName(newDocumentDto.getFileName());
@@ -36,7 +36,7 @@ public class DocumentService {
         documentDto.setUsername(newDocumentDto.getUsername());
         documentDto.setFileName(newDocumentDto.getFileName());
         documentDto.setCreated(timestamp);
-        documentDto.setId(id);
+        documentDto.setDocId(id);
 
         return documentDto;
 
@@ -48,7 +48,7 @@ public class DocumentService {
                 .stream()
                 .map(document -> {
                     DocumentDto documentDto = new DocumentDto();
-                    documentDto.setId(document.getId());
+                    documentDto.setDocId(document.getDocId());
                     documentDto.setUsername(document.getUsername());
                     documentDto.setFileName(document.getFileName());
                     documentDto.setCreated(document.getCreated());
@@ -63,7 +63,7 @@ public class DocumentService {
         Document document = documentRepository.getDocument(id);
 
         DocumentDto documentDto = new DocumentDto();
-        documentDto.setId(document.getId());
+        documentDto.setDocId(document.getDocId());
         documentDto.setUsername(document.getUsername());
         documentDto.setFileName(document.getFileName());
         documentDto.setLastModified(document.getLastModified());
