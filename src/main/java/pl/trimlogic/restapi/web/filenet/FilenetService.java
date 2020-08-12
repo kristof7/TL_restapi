@@ -1,4 +1,4 @@
-package pl.trimlogic.restapi.web.service;
+package pl.trimlogic.restapi.web.filenet;
 
 import com.filenet.api.util.Id;
 import lombok.NonNull;
@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.trimlogic.restapi.web.exception.FilenetException;
 import pl.trimlogic.restapi.web.exception.InvalidIdException;
-import pl.trimlogic.restapi.web.repository.FilenetRepository;
 
 import java.util.Map;
 

@@ -5,14 +5,13 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pl.trimlogic.restapi.web.exception.FilenetException;
 import pl.trimlogic.restapi.web.exception.RequestExceptionConfig;
+import pl.trimlogic.restapi.web.filenet.FilenetService;
 import pl.trimlogic.restapi.web.model.DocumentDto;
 import pl.trimlogic.restapi.web.model.NewDocumentDto;
 import pl.trimlogic.restapi.web.service.DocumentService;
-import pl.trimlogic.restapi.web.service.FilenetService;
 import pl.trimlogic.restapi.web.service.Response;
 
 import javax.servlet.http.HttpServletRequest;
@@ -55,7 +54,6 @@ public class RestApiController {
 
     @GetMapping("/{docId}")
     public ResponseEntity getDocProperties(HttpServletRequest request,
-                                           Authentication auth,
                                            @PathVariable String docId
     ) throws FilenetException {
         Response response = new Response(request, RequestExceptionConfig.GET);
