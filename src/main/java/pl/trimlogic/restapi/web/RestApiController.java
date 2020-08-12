@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import pl.trimlogic.restapi.web.exception.FilenetException;
 import pl.trimlogic.restapi.web.exception.RequestExceptionConfig;
 import pl.trimlogic.restapi.web.model.DocumentDto;
 import pl.trimlogic.restapi.web.model.NewDocumentDto;
@@ -56,7 +57,7 @@ public class RestApiController {
     public ResponseEntity getDocProperties(HttpServletRequest request,
                                            Authentication auth,
                                            @PathVariable String docId
-    ) {
+    ) throws FilenetException {
         Response response = new Response(request, RequestExceptionConfig.GET);
 
         Map<String, Object> responsePayload = filenetService.getDocument(docId);
