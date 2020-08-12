@@ -4,12 +4,19 @@ package pl.trimlogic.restapi.web;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import pl.trimlogic.restapi.web.exception.RequestExceptionConfig;
 import pl.trimlogic.restapi.web.model.DocumentDto;
 import pl.trimlogic.restapi.web.model.NewDocumentDto;
 import pl.trimlogic.restapi.web.service.DocumentService;
+import pl.trimlogic.restapi.web.service.FilenetService;
+import pl.trimlogic.restapi.web.service.Response;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -39,4 +46,23 @@ public class RestApiController {
     DocumentDto addDocument(@RequestBody NewDocumentDto document) {
         return documentService.createDocument(document);
     }
+
+    //----------------- Filenet --------------------------
+
+    @NonNull
+    private FilenetService filenetService;
+
+    @GetMapping("/{docId}")
+    public ResponseEntity getDocProperties(HttpServletRequest request,
+                                           Authentication auth,
+                                           @PathVariable String docId
+    ) {
+        Response response = new Response(request, RequestExceptionConfig.GET);
+
+        Map<String, Object> responsePayload = filenetService.getDocument(docId);
+
+        return response.asResponseEntity();
+    }
+
+
 }
