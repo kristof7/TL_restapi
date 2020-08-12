@@ -6,7 +6,7 @@ public class Document {
 
     private String docId;
     private String username;
-    private String fileName;
+    private String objectStoreName;
     private Long created;
     private Long lastModified;
 
@@ -29,12 +29,12 @@ public class Document {
         this.username = username;
     }
 
-    public String getFileName() {
-        return fileName;
+    public String getObjectStoreName() {
+        return objectStoreName;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setObjectStoreName(String objectStoreName) {
+        this.objectStoreName = objectStoreName;
     }
 
     public Long getCreated() {
@@ -64,13 +64,13 @@ public class Document {
         Document document = (Document) o;
         return Objects.equals(docId, document.docId) &&
                 Objects.equals(username, document.username) &&
-                Objects.equals(fileName, document.fileName) &&
+                Objects.equals(objectStoreName, document.objectStoreName) &&
                 Objects.equals(created, document.created) &&
                 Objects.equals(lastModified, document.lastModified);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(docId, username, fileName, created, lastModified);
+        return Objects.hash(docId, username, objectStoreName, created, lastModified);
     }
 }

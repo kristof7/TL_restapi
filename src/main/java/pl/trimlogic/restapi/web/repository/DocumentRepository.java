@@ -42,7 +42,7 @@ public class DocumentRepository {
         Document documentToReturn = new Document();
         documentToReturn.setDocId(document.getDocId());
         documentToReturn.setUsername(document.getUsername());
-        documentToReturn.setFileName(document.getFileName());
+        documentToReturn.setObjectStoreName(document.getObjectStoreName());
         documentToReturn.setCreated(document.getCreated());
         documentToReturn.setLastModified(document.getLastModified());
 

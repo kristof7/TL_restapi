@@ -28,13 +28,13 @@ public class DocumentService {
         document.setDocId(id);
         document.setCreated(timestamp);
         document.setUsername(newDocumentDto.getUsername());
-        document.setFileName(newDocumentDto.getFileName());
+        document.setObjectStoreName(newDocumentDto.getObjectStoreName());
 
         documentRepository.saveDocument(document);
 
         DocumentDto documentDto = new DocumentDto();
         documentDto.setUsername(newDocumentDto.getUsername());
-        documentDto.setFileName(newDocumentDto.getFileName());
+        documentDto.setObjectStoreName(newDocumentDto.getObjectStoreName());
         documentDto.setCreated(timestamp);
         documentDto.setDocId(id);
 
@@ -50,7 +50,7 @@ public class DocumentService {
                     DocumentDto documentDto = new DocumentDto();
                     documentDto.setDocId(document.getDocId());
                     documentDto.setUsername(document.getUsername());
-                    documentDto.setFileName(document.getFileName());
+                    documentDto.setObjectStoreName(document.getObjectStoreName());
                     documentDto.setCreated(document.getCreated());
                     documentDto.setLastModified(document.getLastModified());
                     return documentDto;
@@ -65,7 +65,7 @@ public class DocumentService {
         DocumentDto documentDto = new DocumentDto();
         documentDto.setDocId(document.getDocId());
         documentDto.setUsername(document.getUsername());
-        documentDto.setFileName(document.getFileName());
+        documentDto.setObjectStoreName(document.getObjectStoreName());
         documentDto.setLastModified(document.getLastModified());
         documentDto.setCreated(document.getCreated());
 

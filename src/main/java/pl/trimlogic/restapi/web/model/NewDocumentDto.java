@@ -7,7 +7,7 @@ public class NewDocumentDto {
     @NonNull
     private String username;
     @NonNull
-    private String fileName;
+    private String objectStoreName;
 
     public String getUsername() {
         return username;
@@ -17,11 +17,11 @@ public class NewDocumentDto {
         this.username = username;
     }
 
-    public String getFileName() {
-        return fileName;
+    public String getObjectStoreName() {
+        return objectStoreName;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setObjectStoreName(String objectStoreName) {
+        this.objectStoreName = objectStoreName;
     }
 }

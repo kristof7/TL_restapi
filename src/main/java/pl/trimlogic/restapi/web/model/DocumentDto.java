@@ -4,7 +4,7 @@ public class DocumentDto {
 
     private String docId;
     private String username;
-    private String fileName;
+    private String objectStoreName;
     private Long created;
     private Long lastModified;
 
@@ -26,12 +26,12 @@ public class DocumentDto {
         this.username = username;
     }
 
-    public String getFileName() {
-        return fileName;
+    public String getObjectStoreName() {
+        return objectStoreName;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setObjectStoreName(String objectStoreName) {
+        this.objectStoreName = objectStoreName;
     }
 
     public Long getCreated() {
