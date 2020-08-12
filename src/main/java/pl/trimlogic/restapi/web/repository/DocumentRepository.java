@@ -48,4 +48,10 @@ public class DocumentRepository {
 
         return documentToReturn;
     }
+
+    public Document getDocumentFilenet(String guid) {
+        return null;
+    }
+
+
 }
