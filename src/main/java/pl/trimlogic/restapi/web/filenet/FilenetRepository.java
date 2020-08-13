@@ -4,6 +4,7 @@ import com.filenet.api.constants.ClassNames;
 import com.filenet.api.constants.PropertyNames;
 import com.filenet.api.core.*;
 import com.filenet.api.property.FilterElement;
+import com.filenet.api.property.Properties;
 import com.filenet.api.property.Property;
 import com.filenet.api.property.PropertyFilter;
 import com.filenet.api.util.Id;
@@ -45,8 +46,7 @@ public class FilenetRepository {
 
         doc.fetchProperties(pf);
 
-
-        com.filenet.api.property.Properties props = doc.getProperties();
+        Properties props = doc.getProperties();
 
         Iterator iter = props.iterator();
         System.out.println("Property" + "\t" + "Value");
@@ -55,12 +55,6 @@ public class FilenetRepository {
         while (iter.hasNext()) {
             Property prop = (Property) iter.next();
             result.put(prop.getPropertyName(), prop.getObjectValue());
-//            if (prop.getPropertyName().equals("objectStoreName"))
-//                System.out.println(prop.getPropertyName() + "\t" + prop
-//                .getStringValue());
-//            else if (prop.getPropertyName().equals(PropertyNames.MIME_TYPE))
-//                System.out.println(prop.getPropertyName() + "\t" + prop
-//                .getStringValue());
         }
 
         return result;
