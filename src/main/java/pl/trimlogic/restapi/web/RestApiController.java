@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.trimlogic.restapi.web.exception.FilenetException;
-import pl.trimlogic.restapi.web.filenet.FilenetService;
+import pl.trimlogic.restapi.exception.FilenetException;
+import pl.trimlogic.restapi.filenet.FilenetService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -30,7 +30,7 @@ public class RestApiController {
     @NonNull
     private FilenetService filenetService;
 
-    @GetMapping("/{docId}")
+    @GetMapping("/nspr/{docId}")
     public ResponseEntity getDocProperties(HttpServletRequest request,
                                            @PathVariable String docId
     ) throws JsonProcessingException, FilenetException {

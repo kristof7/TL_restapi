@@ -1,4 +1,4 @@
-package pl.trimlogic.restapi.web.exception;
+package pl.trimlogic.restapi.exception;
 
 public class InvalidIdException extends FilenetException {
 

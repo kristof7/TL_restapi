@@ -1,4 +1,4 @@
-package pl.trimlogic.restapi.web.exception;
+package pl.trimlogic.restapi.exception;
 
 import lombok.*;
 import org.springframework.boot.logging.LogLevel;

@@ -1,4 +1,4 @@
-package pl.trimlogic.restapi.web.filenet;
+package pl.trimlogic.restapi.filenet;
 
 import com.filenet.api.constants.ClassNames;
 import com.filenet.api.constants.PropertyNames;
@@ -38,7 +38,9 @@ public class FilenetRepository {
         Domain domain = Factory.Domain.getInstance(connection, null);
         ObjectStore os = Factory.ObjectStore.fetchInstance(domain, osName, null);
         PropertyFilter pf = new PropertyFilter();
-        pf.addIncludeProperty(new FilterElement(null, null, null, "objectStoreName",
+        pf.addIncludeProperty(new FilterElement(null, null, null, "Creator",
+                null));
+        pf.addIncludeProperty(new FilterElement(null, null, null, "DateCreated",
                 null));
         pf.addIncludeProperty(new FilterElement(null, null, null,
                 PropertyNames.MIME_TYPE, null));
@@ -54,6 +56,12 @@ public class FilenetRepository {
         Map<String, Object> result = new HashMap<>();
         while (iter.hasNext()) {
             Property prop = (Property) iter.next();
+            if(prop.getPropertyName().equals("Creator"))
+                System.out.println(prop.getPropertyName() + "\t" + prop.getStringValue());
+            else if(prop.getPropertyName().equals("DateCreated"))
+                System.out.println(prop.getPropertyName() + "\t" + prop.getDateTimeValue());
+            else if(prop.getPropertyName().equals(PropertyNames.MIME_TYPE))
+                System.out.println(prop.getPropertyName() + "\t" + prop.getStringValue());
             result.put(prop.getPropertyName(), prop.getObjectValue());
         }
 
