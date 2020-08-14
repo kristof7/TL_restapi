@@ -3,19 +3,16 @@ package pl.trimlogic.restapi.web;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.filenet.api.util.Id;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pl.trimlogic.restapi.exception.FilenetException;
 import pl.trimlogic.restapi.filenet.FilenetService;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 
@@ -30,9 +27,8 @@ public class RestApiController {
     @NonNull
     private FilenetService filenetService;
 
-    @GetMapping("/nspr/{docId}")
-    public ResponseEntity getDocProperties(HttpServletRequest request,
-                                           @PathVariable String docId
+    @GetMapping("{docId}")
+    public ResponseEntity getDocProperties(@PathVariable String docId
     ) throws JsonProcessingException, FilenetException {
         ResponseEntity response = new ResponseEntity(HttpStatus.OK);
 
@@ -41,4 +37,22 @@ public class RestApiController {
 
         return response;
     }
+
+    @PostMapping("${api.request.context.document.creation}")
+    public ResponseEntity upload(
+            Map<String, String> properties
+    ) throws FilenetException {
+
+
+        Id docId = filenetService.createDocument(properties);
+        ResponseEntity response = new ResponseEntity(HttpStatus.OK);
+
+
+        Map<String, Object> responsePayload = filenetService.getDocument(docId);
+
+        return response;
+
+    }
+
+    //TODO post method - search for params, method parameter : Hashmap
 }

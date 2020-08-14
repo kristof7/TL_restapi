@@ -1,7 +1,6 @@
 package pl.trimlogic.restapi.filenet;
 
-import com.filenet.api.constants.ClassNames;
-import com.filenet.api.constants.PropertyNames;
+import com.filenet.api.constants.*;
 import com.filenet.api.core.*;
 import com.filenet.api.property.FilterElement;
 import com.filenet.api.property.Properties;
@@ -16,7 +15,6 @@ import pl.trimlogic.restapi.exception.FilenetException;
 import pl.trimlogic.restapi.exception.InvalidIdException;
 
 import javax.security.auth.Subject;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -59,8 +57,10 @@ public class FilenetService {
         Properties props = doc.getProperties();
 
         Iterator iter = props.iterator();
-        System.out.println("Property" + "\t" + "Value");
-        System.out.println("----------------------------------");
+
+        //TODO add LOGGERs to file, move to properties, search for documents
+        // (properties-value)
+
         Map<String, Object> result = new HashMap<>();
         while (iter.hasNext()) {
             Property prop = (Property) iter.next();
@@ -77,18 +77,45 @@ public class FilenetService {
     }
 
 
-    public Id createDocument(String username, String objectStoreName, Map properties,
-                             String fileName, String mimeType, InputStream
-                                     inputStream) throws FilenetException {
+    public Id createDocument(Map<String, String> propsValues) {
+
+        connect(username);
 
         ObjectStore os = Factory.ObjectStore.fetchInstance(domain, osName, null);
 
         Document doc = Factory.Document.createInstance(os, ClassNames.DOCUMENT);
 
-        doc.getProperties().putObjectValue("DocumentTitle", "New document via Java API");
+        doc.getProperties().putObjectValue("DocumentTitle",
+                propsValues.get(FilenetConfig.Properties.DOCUMENT_TITLE));
         doc.set_MimeType("text/plain");
 
-        return null;
+        doc.save(RefreshMode.NO_REFRESH);
+        doc.checkin(AutoClassify.DO_NOT_AUTO_CLASSIFY, CheckinType.MAJOR_VERSION);
+        doc.save(RefreshMode.NO_REFRESH);
+
+        Folder folder = Factory.Folder.getInstance(os, ClassNames.FOLDER, new Id(
+                "{C0009BDE-E819-49C5-88DF-ABA1E21D37E5}"));
+
+        ReferentialContainmentRelationship rcr = folder.file(doc,
+                AutoUniqueName.AUTO_UNIQUE, "New Document via Java Api",
+                DefineSecurityParentage.DO_NOT_DEFINE_SECURITY_PARENTAGE);
+        rcr.save(RefreshMode.NO_REFRESH);
+
+        PropertyFilter pf = new PropertyFilter();
+        pf.addIncludeProperty(new FilterElement(null, null, null, "DocumentTitle",
+                null));
+        doc.fetchProperties(pf);
+        Properties props = doc.getProperties();
+        Iterator iter = props.iterator();
+        Map<String, Object> result = new HashMap<>();
+        while (iter.hasNext()) {
+            Property prop = (Property) iter.next();
+            if (prop.getPropertyName().equals("DocumentTitle"))
+                System.out.println(prop.getPropertyName() + "\t" + prop.getStringValue());
+            result.put(prop.getPropertyName(), prop.getObjectValue());
+        }
+
+        return doc.get_Id();
     }
 
 
