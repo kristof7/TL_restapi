@@ -9,6 +9,7 @@ import com.filenet.api.property.PropertyFilter;
 import com.filenet.api.util.Id;
 import com.filenet.api.util.UserContext;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.trimlogic.restapi.exception.FilenetException;
@@ -19,13 +20,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class FilenetService {
 
     private String uri = "http://192.168.1.140:9080/wsi/FNCEWS40MTOM";
     private String osName = "ArchNSPR";
-    private String username = "spichalskima";
+    private String username = "spichalskima ";
     private String password = "Trimlogic123";
     private String stanzaName = "FileNetP8WSI";
 
@@ -40,7 +42,7 @@ public class FilenetService {
 
     public Map<String, Object> getDocument(Id docId) {
 
-        connect(username);
+        connect(username, password);
         ObjectStore os = Factory.ObjectStore.fetchInstance(domain, osName, null);
 
         PropertyFilter pf = new PropertyFilter();
@@ -79,7 +81,7 @@ public class FilenetService {
 
     public Id createDocument(Map<String, String> propsValues) {
 
-        connect(username);
+        connect(username, password);
 
         ObjectStore os = Factory.ObjectStore.fetchInstance(domain, osName, null);
 
@@ -119,13 +121,12 @@ public class FilenetService {
     }
 
 
-    FilenetService connect(String username) {
+    FilenetService connect(String username, String password) {
         Connection connection = Factory.Connection.getConnection(uri);
         Subject subject = UserContext.createSubject(connection, username, password,
                 stanzaName);
         UserContext userContext = UserContext.get();
         userContext.pushSubject(subject);
-        ObjectStore os = Factory.ObjectStore.fetchInstance(domain, osName, null);
         return this;
     }
 

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.filenet.api.util.Id;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,7 @@ import pl.trimlogic.restapi.filenet.FilenetService;
 
 import java.util.Map;
 
-
+@Slf4j
 @RestController
 @RequestMapping("${api.request.context.root}${api.request.context.document.base}/")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
