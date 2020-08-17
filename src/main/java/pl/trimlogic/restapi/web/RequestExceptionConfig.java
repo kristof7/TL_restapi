@@ -1,4 +1,4 @@
-package pl.trimlogic.restapi.exception;
+package pl.trimlogic.restapi.web;
 
 import lombok.AllArgsConstructor;
 import org.springframework.boot.logging.LogLevel;
@@ -6,14 +6,15 @@ import org.springframework.http.HttpStatus;
 
 @AllArgsConstructor
 public class RequestExceptionConfig {
-    public final ExceptionConfig defaultExceptionConfig;
-    public final ExceptionConfig parseExceptionConfig;
-    public final ExceptionConfig generationExceptionConfig;
+    protected final ExceptionConfig defaultExceptionConfig,
+            parseExceptionConfig,
+            generationExceptionConfig;
     public final ExceptionConfig invalidId = getInvalidObjectExceptionConfig("Id"),
             objectStoreNotExists = getObjectNotExistsExceptionConfig("System"),
             documentNotExists = getObjectNotExistsExceptionConfig("Document"),
             objectClassNotExists = getObjectNotExistsExceptionConfig("Object class"),
-            notAuthenticated = new ExceptionConfig("User is not authenticated", "You are not authenticated", HttpStatus.UNAUTHORIZED,LogLevel.WARN);
+            notAuthenticated = new ExceptionConfig("User is not authenticated",
+                    "You are not authenticated", HttpStatus.UNAUTHORIZED, LogLevel.WARN);
 
 
 

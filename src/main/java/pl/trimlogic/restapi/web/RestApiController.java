@@ -36,6 +36,7 @@ public class RestApiController {
         Map<String, Object> responsePayload = filenetService.getDocument(docId);
         String responseBody = mapper.writeValueAsString(responsePayload);
 
+
         return response;
     }
 

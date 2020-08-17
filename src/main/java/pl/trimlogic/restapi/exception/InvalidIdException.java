@@ -6,7 +6,4 @@ public class InvalidIdException extends FilenetException {
         super("Cannot parse Id: " + id);
     }
 
-    public InvalidIdException(Exception e){
-        super(e);
-    }
 }
