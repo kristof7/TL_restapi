@@ -1,5 +1,6 @@
 package pl.trimlogic.restapi.filenet;
 
+import com.filenet.api.collection.ContentElementList;
 import com.filenet.api.constants.*;
 import com.filenet.api.core.*;
 import com.filenet.api.property.FilterElement;
@@ -16,6 +17,7 @@ import pl.trimlogic.restapi.exception.FilenetException;
 import pl.trimlogic.restapi.exception.InvalidIdException;
 
 import javax.security.auth.Subject;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -78,45 +80,64 @@ public class FilenetService {
         return result;
     }
 
-    public Id createDocument(Map<String, String> propsValues) {
+    public Id createDocument(Map<String, String> propsValues, String filename,
+                             String mimeType, InputStream inputStream) {
 
         connect(username, password);
 
         ObjectStore os = Factory.ObjectStore.fetchInstance(domain, osName, null);
 
-        Document doc = Factory.Document.createInstance(os, ClassNames.DOCUMENT);
+        Document document = Factory.Document.createInstance(os, ClassNames.DOCUMENT);
 
-        doc.getProperties().putObjectValue("DocumentTitle",
+        document.getProperties().putObjectValue("DocumentTitle",
                 propsValues.get(FilenetConfig.Properties.DOCUMENT_TITLE));
-        doc.set_MimeType("text/plain");
 
-        doc.save(RefreshMode.NO_REFRESH);
-        doc.checkin(AutoClassify.DO_NOT_AUTO_CLASSIFY, CheckinType.MAJOR_VERSION);
-        doc.save(RefreshMode.NO_REFRESH);
+        addDocumentContent(document, filename, mimeType, inputStream);
+
+        document.checkin(AutoClassify.DO_NOT_AUTO_CLASSIFY, CheckinType.MAJOR_VERSION);
+        document.save(RefreshMode.NO_REFRESH);
+        PropertyFilter pf = new PropertyFilter();
+        document.fetchProperties(pf);
 
         Folder folder = Factory.Folder.getInstance(os, ClassNames.FOLDER, new Id(
                 "{C0009BDE-E819-49C5-88DF-ABA1E21D37E5}"));
 
-        ReferentialContainmentRelationship rcr = folder.file(doc,
+        ReferentialContainmentRelationship rcr = folder.file(document,
                 AutoUniqueName.AUTO_UNIQUE, "New Document via Java Api",
                 DefineSecurityParentage.DO_NOT_DEFINE_SECURITY_PARENTAGE);
         rcr.save(RefreshMode.NO_REFRESH);
 
-        PropertyFilter pf = new PropertyFilter();
-        pf.addIncludeProperty(new FilterElement(null, null, null, "DocumentTitle",
-                null));
-        doc.fetchProperties(pf);
-        Properties props = doc.getProperties();
-        Iterator iter = props.iterator();
-        Map<String, Object> result = new HashMap<>();
-        while (iter.hasNext()) {
-            Property prop = (Property) iter.next();
-            if (prop.getPropertyName().equals("DocumentTitle"))
-                System.out.println(prop.getPropertyName() + "\t" + prop.getStringValue());
-            result.put(prop.getPropertyName(), prop.getObjectValue());
-        }
+        return document.get_Id();
 
-        return doc.get_Id();
+//        PropertyFilter pf = new PropertyFilter();
+//        pf.addIncludeProperty(new FilterElement(null, null, null, "DocumentTitle",
+//                null));
+//        document.fetchProperties(pf);
+//        Properties props = document.getProperties();
+//        Iterator iter = props.iterator();
+//        Map<String, Object> result = new HashMap<>();
+//        while (iter.hasNext()) {
+//            Property prop = (Property) iter.next();
+//            if (prop.getPropertyName().equals("DocumentTitle"))
+//                System.out.println(prop.getPropertyName() + "\t" + prop
+//                .getStringValue());
+//            result.put(prop.getPropertyName(), prop.getObjectValue());
+//        }
+
+    }
+
+    private void addDocumentContent(Document document, String fileName, String mimeType
+            , InputStream inputStream) {
+        ContentElementList contentElementList = Factory.ContentElement.createList();
+        ContentTransfer contentTransfer = Factory.ContentTransfer.createInstance();
+        contentTransfer.set_RetrievalName(fileName);
+
+        contentTransfer.setCaptureSource(inputStream);
+        contentTransfer.set_ContentType(mimeType);
+        contentElementList.add(contentTransfer);
+
+        document.set_ContentElements(contentElementList);
+        document.save(RefreshMode.NO_REFRESH);
     }
 
 
