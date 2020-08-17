@@ -1,7 +1,6 @@
 package pl.trimlogic.restapi.web;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.filenet.api.util.Id;
 import lombok.NonNull;
@@ -11,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.trimlogic.restapi.exception.FilenetException;
 import pl.trimlogic.restapi.filenet.FilenetService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 @Slf4j
@@ -29,31 +28,33 @@ public class RestApiController {
     private FilenetService filenetService;
 
     @GetMapping("{docId}")
-    public ResponseEntity getDocProperties(@PathVariable String docId
-    ) throws JsonProcessingException, FilenetException {
-        ResponseEntity response = new ResponseEntity(HttpStatus.OK);
+    public ResponseEntity getDocProperties(
+            HttpServletRequest request, @PathVariable String docId
+    ) {
+        Response response = new Response(request, RequestExceptionConfig.GET);
+        try {
+            Map<String, Object> responsePayload =
+                    filenetService.getDocumentProperties(docId);
+            String responseBody = mapper.writeValueAsString(responsePayload);
 
-        Map<String, Object> responsePayload = filenetService.getDocument(docId);
-        String responseBody = mapper.writeValueAsString(responsePayload);
-
-
-        return response;
+            response.setBody(responseBody);
+            response.setStatus(HttpStatus.OK);
+        } catch (Exception e) {
+            response.updateByException(e);
+        }
+        return response.asResponseEntity();
     }
 
     @PostMapping("${api.request.context.document.creation}")
     public ResponseEntity upload(
             Map<String, String> properties
-    ) throws FilenetException {
-
-
+    ) {
         Id docId = filenetService.createDocument(properties);
         ResponseEntity response = new ResponseEntity(HttpStatus.OK);
 
-
-        Map<String, Object> responsePayload = filenetService.getDocument(docId);
+        Map<String, Object> responsePayload = filenetService.getDocumentProperties(docId);
 
         return response;
-
     }
 
     //TODO post method - search for params, method parameter : Hashmap

@@ -35,12 +35,12 @@ public class FilenetService {
     private Domain domain = Factory.Domain.getInstance(connection, null);
 
 
-    public Map<String, Object> getDocument(String requestedGuid) throws FilenetException {
-        Id docId = getId(requestedGuid);
-        return getDocument(docId);
+    public Map<String, Object> getDocumentProperties(String requestedDocId) throws FilenetException {
+        Id docId = getId(requestedDocId);
+        return getDocumentProperties(docId);
     }
 
-    public Map<String, Object> getDocument(Id docId) {
+    public Map<String, Object> getDocumentProperties(Id docId) {
 
         connect(username, password);
         ObjectStore os = Factory.ObjectStore.fetchInstance(domain, osName, null);
@@ -77,7 +77,6 @@ public class FilenetService {
 
         return result;
     }
-
 
     public Id createDocument(Map<String, String> propsValues) {
 
