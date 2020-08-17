@@ -47,14 +47,26 @@ public class RestApiController {
 
     @PostMapping("${api.request.context.document.creation}")
     public ResponseEntity upload(
+            HttpServletRequest request,
             Map<String, String> properties
-    ) {
-        Id docId = filenetService.createDocument(properties);
-        ResponseEntity response = new ResponseEntity(HttpStatus.OK);
+            ) {
+        Response response = new Response(request, RequestExceptionConfig.POST);
 
-        Map<String, Object> responsePayload = filenetService.getDocumentProperties(docId);
+        try {
+            Id docId = filenetService.createDocument(properties);
+            if(docId == null){
+                return response.asResponseEntity();
+            }
 
-        return response;
+            Map<String, Object> responsePayload =
+                    filenetService.getDocumentProperties(docId);
+            String responseBody = mapper.writeValueAsString(responsePayload);
+            response.setBody(responseBody);
+            response.setStatus(HttpStatus.CREATED);
+        } catch (Exception e) {
+            response.updateByException(e);
+        }
+        return response.asResponseEntity();
     }
 
     //TODO post method - search for params, method parameter : Hashmap
