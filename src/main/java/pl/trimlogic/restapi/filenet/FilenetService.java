@@ -82,40 +82,51 @@ public class FilenetService {
 
     public Id createDocument(Map<String, Object> propertyValues) {
 
-        connect(username, password);
 
-        ObjectStore os = Factory.ObjectStore.fetchInstance(domain, osName, null);
+        try {
+            connect(username, password);
 
-        Document document = Factory.Document.createInstance(os, ClassNames.DOCUMENT);
+            ObjectStore objectStore = Factory.ObjectStore.fetchInstance(domain, osName,
+                    null);
 
-        document.getProperties().putObjectValue("DocumentTitle",
-                propertyValues.get(FilenetConfig.Properties.DOCUMENT_TITLE));
+            Document document = Factory.Document.createInstance(objectStore,
+                    ClassNames.DOCUMENT);
 
-        document.set_MimeType("text/plain");
+            document.getProperties().putObjectValue("DocumentTitle",
+                    propertyValues.get(FilenetConfig.Properties.DOCUMENT_TITLE));
 
-        document.checkin(AutoClassify.DO_NOT_AUTO_CLASSIFY, CheckinType.MAJOR_VERSION);
-        document.save(RefreshMode.NO_REFRESH);
-        PropertyFilter pf = new PropertyFilter();
-        document.fetchProperties(pf);
+            document.set_MimeType("text/plain");
 
-        Folder folder = Factory.Folder.getInstance(os, ClassNames.FOLDER, new Id(
-                "{C0009BDE-E819-49C5-88DF-ABA1E21D37E5}"));
+            document.checkin(AutoClassify.DO_NOT_AUTO_CLASSIFY,
+                    CheckinType.MAJOR_VERSION);
+            document.save(RefreshMode.NO_REFRESH);
+            PropertyFilter pf = new PropertyFilter();
+            document.fetchProperties(pf);
 
-        ReferentialContainmentRelationship rcr = folder.file(document,
-                AutoUniqueName.AUTO_UNIQUE, "New Document via Java Api",
-                DefineSecurityParentage.DO_NOT_DEFINE_SECURITY_PARENTAGE);
-        rcr.save(RefreshMode.NO_REFRESH);
+            Folder folder = Factory.Folder.getInstance(objectStore, ClassNames.FOLDER,
+                    new Id(
+                    "{C0009BDE-E819-49C5-88DF-ABA1E21D37E5}"));
 
-        pf.addIncludeProperty(new FilterElement(null, null, null, "DocumentTitle",
-                null));
-        document.fetchProperties(pf);
-        Properties props = document.getProperties();
-        Iterator iter = props.iterator();
-        while (iter.hasNext()) {
-            Property prop = (Property) iter.next();
-            if (prop.getPropertyName().equals("DocumentTitle"))
-                System.out.println(prop.getPropertyName() + "\t" + prop
-                        .getStringValue());
+            ReferentialContainmentRelationship rcr = folder.file(document,
+                    AutoUniqueName.AUTO_UNIQUE, "New Document via Java Api",
+                    DefineSecurityParentage.DO_NOT_DEFINE_SECURITY_PARENTAGE);
+            rcr.save(RefreshMode.NO_REFRESH);
+
+            pf.addIncludeProperty(new FilterElement(null, null, null, "DocumentTitle",
+                    null));
+            document.fetchProperties(pf);
+            Properties props = document.getProperties();
+            Iterator iter = props.iterator();
+            while (iter.hasNext()) {
+                Property prop = (Property) iter.next();
+                if (prop.getPropertyName().equals("DocumentTitle"))
+                    System.out.println(prop.getPropertyName() + "\t" + prop
+                            .getStringValue());
+            }
+
+            return document.get_Id();
+        } catch (Exception e) {
+            log.error("Cannot create document: ", e);
         }
         return null;
     }
