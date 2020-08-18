@@ -29,7 +29,7 @@ public class FilenetService {
 
     private String uri = "http://192.168.1.140:9080/wsi/FNCEWS40MTOM";
     private String osName = "ArchNSPR";
-    private String username = "spichalskima ";
+    private String username = "";
     private String password = "Trimlogic123";
     private String stanzaName = "FileNetP8WSI";
 
@@ -80,8 +80,7 @@ public class FilenetService {
         return result;
     }
 
-    public Id createDocument(Map<String, String> propsValues, String filename,
-                             String mimeType, InputStream inputStream) {
+    public Id createDocument(Map<String, Object> propertyValues) {
 
         connect(username, password);
 
@@ -90,9 +89,9 @@ public class FilenetService {
         Document document = Factory.Document.createInstance(os, ClassNames.DOCUMENT);
 
         document.getProperties().putObjectValue("DocumentTitle",
-                propsValues.get(FilenetConfig.Properties.DOCUMENT_TITLE));
+                propertyValues.get(FilenetConfig.Properties.DOCUMENT_TITLE));
 
-        addDocumentContent(document, filename, mimeType, inputStream);
+        document.set_MimeType("text/plain");
 
         document.checkin(AutoClassify.DO_NOT_AUTO_CLASSIFY, CheckinType.MAJOR_VERSION);
         document.save(RefreshMode.NO_REFRESH);
@@ -107,23 +106,18 @@ public class FilenetService {
                 DefineSecurityParentage.DO_NOT_DEFINE_SECURITY_PARENTAGE);
         rcr.save(RefreshMode.NO_REFRESH);
 
-        return document.get_Id();
-
-//        PropertyFilter pf = new PropertyFilter();
-//        pf.addIncludeProperty(new FilterElement(null, null, null, "DocumentTitle",
-//                null));
-//        document.fetchProperties(pf);
-//        Properties props = document.getProperties();
-//        Iterator iter = props.iterator();
-//        Map<String, Object> result = new HashMap<>();
-//        while (iter.hasNext()) {
-//            Property prop = (Property) iter.next();
-//            if (prop.getPropertyName().equals("DocumentTitle"))
-//                System.out.println(prop.getPropertyName() + "\t" + prop
-//                .getStringValue());
-//            result.put(prop.getPropertyName(), prop.getObjectValue());
-//        }
-
+        pf.addIncludeProperty(new FilterElement(null, null, null, "DocumentTitle",
+                null));
+        document.fetchProperties(pf);
+        Properties props = document.getProperties();
+        Iterator iter = props.iterator();
+        while (iter.hasNext()) {
+            Property prop = (Property) iter.next();
+            if (prop.getPropertyName().equals("DocumentTitle"))
+                System.out.println(prop.getPropertyName() + "\t" + prop
+                        .getStringValue());
+        }
+        return null;
     }
 
     private void addDocumentContent(Document document, String fileName, String mimeType

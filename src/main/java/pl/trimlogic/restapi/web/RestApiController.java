@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import pl.trimlogic.restapi.filenet.FilenetService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,15 +48,12 @@ public class RestApiController {
     @PostMapping("${api.request.context.document.creation}")
     public ResponseEntity upload(
             HttpServletRequest request,
-            MultipartFile content,
-            Map<String, String> properties
+            Map<String, Object> properties
     ) {
         Response response = new Response(request, RequestExceptionConfig.POST);
 
         try {
-            Id docId = filenetService.createDocument(properties,
-                    content.getOriginalFilename(), content.getContentType(),
-                    content.getInputStream());
+            Id docId = filenetService.createDocument(properties);
             if (docId == null) {
                 return response.asResponseEntity();
             }
