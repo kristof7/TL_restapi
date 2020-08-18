@@ -20,6 +20,7 @@ import javax.security.auth.Subject;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -44,40 +45,45 @@ public class FilenetService {
 
     public Map<String, Object> getDocumentProperties(Id docId) {
 
-        connect(username, password);
-        ObjectStore os = Factory.ObjectStore.fetchInstance(domain, osName, null);
+        Map<String, Object> propertyMap = new HashMap<>();
+        try {
+            connect(username, password);
 
-        PropertyFilter pf = new PropertyFilter();
-        pf.addIncludeProperty(new FilterElement(null, null, null, "Creator",
-                null));
-        pf.addIncludeProperty(new FilterElement(null, null, null, "DateCreated",
-                null));
-        pf.addIncludeProperty(new FilterElement(null, null, null,
-                PropertyNames.MIME_TYPE, null));
-        Document doc = Factory.Document.getInstance(os, ClassNames.DOCUMENT, docId);
+            ObjectStore os = Factory.ObjectStore.fetchInstance(domain, osName, null);
 
-        doc.fetchProperties(pf);
+            PropertyFilter pf = new PropertyFilter();
+            pf.addIncludeProperty(new FilterElement(null, null, null, "Creator",
+                    null));
+            pf.addIncludeProperty(new FilterElement(null, null, null, "DateCreated",
+                    null));
+            pf.addIncludeProperty(new FilterElement(null, null, null,
+                    PropertyNames.MIME_TYPE, null));
+            Document document = Factory.Document.getInstance(os, ClassNames.DOCUMENT, docId);
 
-        Properties props = doc.getProperties();
+            document.fetchProperties(pf);
 
-        Iterator iter = props.iterator();
+            Properties props = document.getProperties();
 
-        //TODO add LOGGERs to file, move to properties, search for documents
-        // (properties-value)
+            Iterator iter = props.iterator();
 
-        Map<String, Object> result = new HashMap<>();
-        while (iter.hasNext()) {
-            Property prop = (Property) iter.next();
-            if (prop.getPropertyName().equals("Creator"))
-                System.out.println(prop.getPropertyName() + "\t" + prop.getStringValue());
-            else if (prop.getPropertyName().equals("DateCreated"))
-                System.out.println(prop.getPropertyName() + "\t" + prop.getDateTimeValue());
-            else if (prop.getPropertyName().equals(PropertyNames.MIME_TYPE))
-                System.out.println(prop.getPropertyName() + "\t" + prop.getStringValue());
-            result.put(prop.getPropertyName(), prop.getObjectValue());
+            Iterator propertyIterator = document.getProperties().iterator();
+            while (propertyIterator.hasNext()) {
+                Property property = (Property) propertyIterator.next();
+                Object value = property.getObjectValue();
+                if (value == null)
+                    value = "";
+                else if (!(value instanceof List)) {
+                    value = value.toString();
+                }
+                propertyMap.put(property.getPropertyName(), value);
+                System.out.println(property.getPropertyName() + "\t" + value);
+            }
+
+        } catch (Exception e) {
+            log.error("Cannot fetch document properties: ", e);
         }
 
-        return result;
+        return propertyMap;
     }
 
     public Id createDocument(Map<String, Object> propertyValues) {
@@ -163,5 +169,5 @@ public class FilenetService {
         }
         return docId;
     }
-
+    //TODO add LOGGERs to file, move to properties, search for documents
 }
