@@ -3,20 +3,20 @@ package pl.trimlogic.restapi.filenet;
 import com.filenet.api.collection.ContentElementList;
 import com.filenet.api.constants.*;
 import com.filenet.api.core.*;
+import com.filenet.api.exception.EngineRuntimeException;
 import com.filenet.api.property.FilterElement;
 import com.filenet.api.property.Properties;
 import com.filenet.api.property.Property;
 import com.filenet.api.property.PropertyFilter;
 import com.filenet.api.util.Id;
-import com.filenet.api.util.UserContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pl.trimlogic.restapi.exception.DocumentNotExistsException;
 import pl.trimlogic.restapi.exception.FilenetException;
 import pl.trimlogic.restapi.exception.InvalidIdException;
 
-import javax.security.auth.Subject;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,14 +28,12 @@ import java.util.Map;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class FilenetService {
 
-    private String uri = "http://192.168.1.140:9080/wsi/FNCEWS40MTOM";
-    private String osName = "ArchNSPR";
-    private String username = "";
-    private String password = "Trimlogic123";
-    private String stanzaName = "FileNetP8WSI";
+    private final String uri = "http://192.168.1.140:9080/wsi/FNCEWS40MTOM";
+    private final String osName = "ArchNSPR";
+    private final String stanzaName = "FileNetP8WSI";
 
-    private Connection connection = Factory.Connection.getConnection(uri);
-    private Domain domain = Factory.Domain.getInstance(connection, null);
+    private final Connection connection = Factory.Connection.getConnection(uri);
+    private final Domain domain = Factory.Domain.getInstance(connection, null);
 
 
     public Map<String, Object> getDocumentProperties(String requestedDocId) throws FilenetException {
@@ -47,20 +45,21 @@ public class FilenetService {
 
         Map<String, Object> propertyMap = new HashMap<>();
         try {
-            connect(username, password);
 
+            new FilenetConnection().connect();
             ObjectStore os = Factory.ObjectStore.fetchInstance(domain, osName, null);
-
-            PropertyFilter pf = new PropertyFilter();
-            pf.addIncludeProperty(new FilterElement(null, null, null, "Creator",
-                    null));
-            pf.addIncludeProperty(new FilterElement(null, null, null, "DateCreated",
-                    null));
-            pf.addIncludeProperty(new FilterElement(null, null, null,
-                    PropertyNames.MIME_TYPE, null));
+            PropertyFilter propertyFilter = new PropertyFilter();
             Document document = Factory.Document.getInstance(os, ClassNames.DOCUMENT, docId);
+            propertyMap.put(FilenetConfig.Properties.CLASS_NAME, document.getClassName());
 
-            document.fetchProperties(pf);
+            propertyFilter.addIncludeProperty(new FilterElement(null, null, null, "Creator",
+                    null));
+            propertyFilter.addIncludeProperty(new FilterElement(null, null, null, "DateCreated",
+                    null));
+            propertyFilter.addIncludeProperty(new FilterElement(null, null, null,
+                    PropertyNames.MIME_TYPE, null));
+
+            document.fetchProperties(propertyFilter);
 
             Properties props = document.getProperties();
 
@@ -90,8 +89,8 @@ public class FilenetService {
 
 
         try {
-            connect(username, password);
 
+            new FilenetConnection().connect();
             ObjectStore objectStore = Factory.ObjectStore.fetchInstance(domain, osName,
                     null);
 
@@ -151,17 +150,6 @@ public class FilenetService {
         document.save(RefreshMode.NO_REFRESH);
     }
 
-
-    FilenetService connect(String username, String password) {
-        Connection connection = Factory.Connection.getConnection(uri);
-        Subject subject = UserContext.createSubject(connection, username, password,
-                stanzaName);
-        UserContext userContext = UserContext.get();
-        userContext.pushSubject(subject);
-        return this;
-    }
-
-
     private Id getId(String requestedGuid) throws InvalidIdException {
         Id docId = Id.asIdOrNull(requestedGuid);
         if (docId == null) {
@@ -169,5 +157,6 @@ public class FilenetService {
         }
         return docId;
     }
+
     //TODO add LOGGERs to file, move to properties, search for documents
 }
