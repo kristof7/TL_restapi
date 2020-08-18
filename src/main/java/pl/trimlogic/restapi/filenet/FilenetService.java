@@ -3,7 +3,6 @@ package pl.trimlogic.restapi.filenet;
 import com.filenet.api.collection.ContentElementList;
 import com.filenet.api.constants.*;
 import com.filenet.api.core.*;
-import com.filenet.api.exception.EngineRuntimeException;
 import com.filenet.api.property.FilterElement;
 import com.filenet.api.property.Properties;
 import com.filenet.api.property.Property;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.trimlogic.restapi.exception.DocumentNotExistsException;
 import pl.trimlogic.restapi.exception.FilenetException;
 import pl.trimlogic.restapi.exception.InvalidIdException;
 
@@ -52,6 +50,9 @@ public class FilenetService {
             Document document = Factory.Document.getInstance(os, ClassNames.DOCUMENT, docId);
             propertyMap.put(FilenetConfig.Properties.CLASS_NAME, document.getClassName());
 
+
+            propertyFilter.addIncludeProperty(new FilterElement(null, null, null, "DocumentTitle",
+                    null));
             propertyFilter.addIncludeProperty(new FilterElement(null, null, null, "Creator",
                     null));
             propertyFilter.addIncludeProperty(new FilterElement(null, null, null, "DateCreated",
@@ -85,7 +86,7 @@ public class FilenetService {
         return propertyMap;
     }
 
-    public Id createDocument(Map<String, Object> propertyValues) {
+    public Id createDocument(Map<String, Object> propertyValues, String documentTitle) {
 
 
         try {
@@ -98,15 +99,15 @@ public class FilenetService {
                     ClassNames.DOCUMENT);
 
             document.getProperties().putObjectValue("DocumentTitle",
-                    propertyValues.get(FilenetConfig.Properties.DOCUMENT_TITLE));
+                    documentTitle);
 
             document.set_MimeType("text/plain");
 
             document.checkin(AutoClassify.DO_NOT_AUTO_CLASSIFY,
                     CheckinType.MAJOR_VERSION);
             document.save(RefreshMode.NO_REFRESH);
-            PropertyFilter pf = new PropertyFilter();
-            document.fetchProperties(pf);
+            PropertyFilter propertyFilter = new PropertyFilter();
+            document.fetchProperties(propertyFilter);
 
             Folder folder = Factory.Folder.getInstance(objectStore, ClassNames.FOLDER,
                     new Id(
@@ -117,9 +118,9 @@ public class FilenetService {
                     DefineSecurityParentage.DO_NOT_DEFINE_SECURITY_PARENTAGE);
             rcr.save(RefreshMode.NO_REFRESH);
 
-            pf.addIncludeProperty(new FilterElement(null, null, null, "DocumentTitle",
+            propertyFilter.addIncludeProperty(new FilterElement(null, null, null, "DocumentTitle",
                     null));
-            document.fetchProperties(pf);
+            document.fetchProperties(propertyFilter);
             Properties props = document.getProperties();
             Iterator iter = props.iterator();
             while (iter.hasNext()) {

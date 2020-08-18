@@ -7,7 +7,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import pl.trimlogic.restapi.hidden.UserAccount;
+import pl.trimlogic.restapi.ahidden.UserAccount;
 
 import javax.security.auth.Subject;
 

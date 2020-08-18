@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.trimlogic.restapi.filenet.FilenetService;
@@ -45,15 +46,17 @@ public class RestApiController {
         return response.asResponseEntity();
     }
 
-    @PostMapping("${api.request.context.document.creation}")
+    @RequestMapping(value = "${api.request.context.document.creation}", method = RequestMethod.POST, produces =
+            MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity upload(
+            @ModelAttribute("DocumentTitle") String documentTitle,
             HttpServletRequest request,
             Map<String, Object> properties
     ) {
         Response response = new Response(request, RequestExceptionConfig.POST);
 
         try {
-            Id docId = filenetService.createDocument(properties);
+            Id docId = filenetService.createDocument(properties, documentTitle);
             if (docId == null) {
                 return response.asResponseEntity();
             }
