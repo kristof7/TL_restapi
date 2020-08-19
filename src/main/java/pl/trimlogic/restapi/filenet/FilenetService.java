@@ -1,12 +1,15 @@
 package pl.trimlogic.restapi.filenet;
 
 import com.filenet.api.collection.ContentElementList;
+import com.filenet.api.collection.IndependentObjectSet;
 import com.filenet.api.constants.*;
 import com.filenet.api.core.*;
 import com.filenet.api.property.FilterElement;
 import com.filenet.api.property.Properties;
 import com.filenet.api.property.Property;
 import com.filenet.api.property.PropertyFilter;
+import com.filenet.api.query.SearchSQL;
+import com.filenet.api.query.SearchScope;
 import com.filenet.api.util.Id;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -85,6 +88,44 @@ public class FilenetService {
 
         return propertyMap;
     }
+
+    public Map<String, Object> getDocumentsByParameters() {
+
+        try {
+
+            new FilenetConnection().connect();
+
+            ObjectStore objectStore = Factory.ObjectStore.fetchInstance(domain, osName, null);
+
+            SearchSQL sqlObject = new SearchSQL();
+            sqlObject.setSelectList("d.DocumentTitle, d.Id");
+            sqlObject.setMaxRecords(20);
+            sqlObject.setFromClauseInitialValue("Document", "d", true);
+            String whereClause = "d.Id = '40B2A674-7CA2-CB4F-854D-73BDEBF00000'";
+            sqlObject.setWhereClause(whereClause);
+
+
+            System.out.println("SQL: " + sqlObject.toString());
+
+            SearchScope search = new SearchScope(objectStore);
+
+            Integer myPageSize = 100;
+
+            PropertyFilter myFilter = new PropertyFilter();
+            int myFilterLevel = 1;
+            myFilter.setMaxRecursion(myFilterLevel);
+            myFilter.addIncludeType(new FilterElement(null, null, null, FilteredPropertyType.ANY, null));
+
+            Boolean continuable = new Boolean(true);
+
+            IndependentObjectSet myObjects = search.fetchObjects(sqlObject, myPageSize, myFilter, continuable);
+
+        } catch (Exception e) {
+            log.error("Cannot find documents by property", e);
+        }
+        return null;
+    }
+
 
     public Id createDocument(Map<String, Object> propertyValues, String documentTitle) {
 

@@ -72,5 +72,21 @@ public class RestApiController {
         return response.asResponseEntity();
     }
 
-    //TODO post method - search for params, method parameter : Hashmap
+    @GetMapping("/search")
+    public ResponseEntity searchForParams(HttpServletRequest request) {
+
+        Response response = new Response(request, RequestExceptionConfig.GET);
+
+        try {
+
+            Map<String, Object> responsePayload = filenetService.getDocumentsByParameters();
+            String responseBody = mapper.writeValueAsString(responsePayload);
+            response.setBody(responseBody);
+            response.setStatus(HttpStatus.OK);
+
+        } catch (Exception e) {
+            response.updateByException(e);
+        }
+        return response.asResponseEntity();
+    }
 }
