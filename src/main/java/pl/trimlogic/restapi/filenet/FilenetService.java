@@ -1,13 +1,14 @@
 package pl.trimlogic.restapi.filenet;
 
 import com.filenet.api.collection.ContentElementList;
-import com.filenet.api.collection.IndependentObjectSet;
+import com.filenet.api.collection.RepositoryRowSet;
 import com.filenet.api.constants.*;
 import com.filenet.api.core.*;
 import com.filenet.api.property.FilterElement;
 import com.filenet.api.property.Properties;
 import com.filenet.api.property.Property;
 import com.filenet.api.property.PropertyFilter;
+import com.filenet.api.query.RepositoryRow;
 import com.filenet.api.query.SearchSQL;
 import com.filenet.api.query.SearchScope;
 import com.filenet.api.util.Id;
@@ -84,6 +85,8 @@ public class FilenetService {
 
     public Map<String, Object> getDocumentsByParameters() {
 
+        Map<String, Object> propertyMap = new HashMap<>();
+
         try {
 
             new FilenetConnection().connect();
@@ -94,7 +97,6 @@ public class FilenetService {
             sqlObject.setSelectList("d.DocumentTitle, d.Id");
             sqlObject.setMaxRecords(20);
             sqlObject.setFromClauseInitialValue("Document", "d", true);
-//            String whereClause = "d.Id LIKE '40B2A674-7CA2-CB4F-854D-73BDEBF00000'";
             String whereClause = "d.DocumentTitle LIKE 'newdocument'";
 
             sqlObject.setWhereClause(whereClause);
@@ -112,14 +114,31 @@ public class FilenetService {
 
             Boolean continuable = new Boolean(true);
 
-            IndependentObjectSet myObjects = search.fetchObjects(sqlObject, myPageSize, myFilter, continuable);
+            RepositoryRowSet myRows = search.fetchRows(sqlObject, myPageSize, myFilter, continuable);
+
+            int rowCount = 0;
+            Iterator iter = myRows.iterator();
+            while (iter.hasNext()) {
+                RepositoryRow row = (RepositoryRow) iter.next();
+
+                String docTitle = row.getProperties().get("DocumentTitle").getStringValue();
+                Id docId = row.getProperties().get("Id").getIdValue();
+
+                rowCount++;
+                System.out.print(" row " + rowCount + ":");
+                System.out.print(" Id= " + docId.toString());
+                if (docTitle != null) {
+                    System.out.print(" DocumentTitle= " + docTitle);
+                }
+                System.out.println();
+                propertyMap.put(docId.toString(), docTitle);
+            }
 
         } catch (Exception e) {
             log.error("Cannot find documents by property", e);
         }
-        return null;
+        return propertyMap;
     }
-
 
     public Id createDocument(Map<String, Object> propertyValues, String documentTitle) {
 
