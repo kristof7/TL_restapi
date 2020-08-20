@@ -29,12 +29,10 @@ import java.util.Map;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class FilenetService {
 
-    private final String uri = "http://192.168.1.140:9080/wsi/FNCEWS40MTOM";
-    private final String osName = "ArchNSPR";
-    private final String stanzaName = "FileNetP8WSI";
-
-    private final Connection connection = Factory.Connection.getConnection(uri);
+    private final Connection connection = Factory.Connection.getConnection(ConfigInfo.CE_URI);
     private final Domain domain = Factory.Domain.getInstance(connection, null);
+
+
 
 
     public Map<String, Object> getDocumentProperties(String requestedDocId) throws FilenetException {
@@ -48,7 +46,7 @@ public class FilenetService {
         try {
 
             new FilenetConnection().connect();
-            ObjectStore os = Factory.ObjectStore.fetchInstance(domain, osName, null);
+            ObjectStore os = Factory.ObjectStore.fetchInstance(domain, ConfigInfo.OBJECT_STORE_NAME, null);
             PropertyFilter propertyFilter = new PropertyFilter();
             Document document = Factory.Document.getInstance(os, ClassNames.DOCUMENT, docId);
             propertyMap.put(FilenetConfig.Properties.CLASS_NAME, document.getClassName());
@@ -95,15 +93,16 @@ public class FilenetService {
 
             new FilenetConnection().connect();
 
-            ObjectStore objectStore = Factory.ObjectStore.fetchInstance(domain, osName, null);
+            ObjectStore objectStore = Factory.ObjectStore.fetchInstance(domain, ConfigInfo.OBJECT_STORE_NAME, null);
 
             SearchSQL sqlObject = new SearchSQL();
             sqlObject.setSelectList("d.DocumentTitle, d.Id");
             sqlObject.setMaxRecords(20);
             sqlObject.setFromClauseInitialValue("Document", "d", true);
-            String whereClause = "d.Id = '40B2A674-7CA2-CB4F-854D-73BDEBF00000'";
-            sqlObject.setWhereClause(whereClause);
+//            String whereClause = "d.Id LIKE '40B2A674-7CA2-CB4F-854D-73BDEBF00000'";
+            String whereClause = "d.DocumentTitle LIKE 'newdocument'";
 
+            sqlObject.setWhereClause(whereClause);
 
             System.out.println("SQL: " + sqlObject.toString());
 
@@ -133,7 +132,7 @@ public class FilenetService {
         try {
 
             new FilenetConnection().connect();
-            ObjectStore objectStore = Factory.ObjectStore.fetchInstance(domain, osName,
+            ObjectStore objectStore = Factory.ObjectStore.fetchInstance(domain, ConfigInfo.OBJECT_STORE_NAME,
                     null);
 
             Document document = Factory.Document.createInstance(objectStore,
@@ -200,5 +199,9 @@ public class FilenetService {
         return docId;
     }
 
-    //TODO add LOGGERs to file, move to properties, search for documents
+
+    private static final class ConfigInfo {
+        static String CE_URI = "http://192.168.1.140:9080/wsi/FNCEWS40MTOM";
+        static String OBJECT_STORE_NAME = "ArchNSPR";
+    }
 }
