@@ -29,11 +29,6 @@ import java.util.Map;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class FilenetService {
 
-    private final Connection connection = Factory.Connection.getConnection(ConfigInfo.CE_URI);
-    private final Domain domain = Factory.Domain.getInstance(connection, null);
-
-
-
 
     public Map<String, Object> getDocumentProperties(String requestedDocId) throws FilenetException {
         Id docId = getId(requestedDocId);
@@ -46,7 +41,7 @@ public class FilenetService {
         try {
 
             new FilenetConnection().connect();
-            ObjectStore os = Factory.ObjectStore.fetchInstance(domain, ConfigInfo.OBJECT_STORE_NAME, null);
+            ObjectStore os = new FilenetConnection().getObjectStore();
             PropertyFilter propertyFilter = new PropertyFilter();
             Document document = Factory.Document.getInstance(os, ClassNames.DOCUMENT, docId);
             propertyMap.put(FilenetConfig.Properties.CLASS_NAME, document.getClassName());
@@ -93,7 +88,7 @@ public class FilenetService {
 
             new FilenetConnection().connect();
 
-            ObjectStore objectStore = Factory.ObjectStore.fetchInstance(domain, ConfigInfo.OBJECT_STORE_NAME, null);
+            ObjectStore objectStore = new FilenetConnection().getObjectStore();
 
             SearchSQL sqlObject = new SearchSQL();
             sqlObject.setSelectList("d.DocumentTitle, d.Id");
@@ -132,8 +127,7 @@ public class FilenetService {
         try {
 
             new FilenetConnection().connect();
-            ObjectStore objectStore = Factory.ObjectStore.fetchInstance(domain, ConfigInfo.OBJECT_STORE_NAME,
-                    null);
+            ObjectStore objectStore = new FilenetConnection().getObjectStore();
 
             Document document = Factory.Document.createInstance(objectStore,
                     ClassNames.DOCUMENT);
@@ -197,11 +191,5 @@ public class FilenetService {
             throw new InvalidIdException(requestedGuid);
         }
         return docId;
-    }
-
-
-    private static final class ConfigInfo {
-        static String CE_URI = "http://192.168.1.140:9080/wsi/FNCEWS40MTOM";
-        static String OBJECT_STORE_NAME = "ArchNSPR";
     }
 }
