@@ -83,7 +83,7 @@ public class FilenetService {
         return propertyMap;
     }
 
-    public Map<String, Object> getDocumentsByParameters() {
+    public Map<String, Object> getDocumentsByParameters(Map propertyValues) {
 
         Map<String, Object> propertyMap = new HashMap<>();
 
@@ -97,9 +97,18 @@ public class FilenetService {
             sqlObject.setSelectList("d.DocumentTitle, d.Id");
             sqlObject.setMaxRecords(20);
             sqlObject.setFromClauseInitialValue("Document", "d", true);
-            String whereClause = "d.DocumentTitle LIKE 'newdocument'";
 
-            sqlObject.setWhereClause(whereClause);
+//            String whereClause =""
+//            for (String key : propertyValues.keySet()) {
+//                String[] strArr = propertyValues.get(key);
+//                for (String val : strArr) {
+//                                String whereClause =
+//                                        "d."+key+"=" + FilenetConfig.Properties.DOCUMENT_TITLE + "'";
+//                    System.out.println(key + " " + val);
+//                }
+//            }
+//
+//            sqlObject.setWhereClause(whereClause);
 
             System.out.println("SQL: " + sqlObject.toString());
 
@@ -126,18 +135,18 @@ public class FilenetService {
 
                 rowCount++;
                 System.out.print(" row " + rowCount + ":");
-                System.out.print(" Id= " + docId.toString());
                 if (docTitle != null) {
                     System.out.print(" DocumentTitle= " + docTitle);
                 }
+                System.out.print(" ID= " + docId.toString());
                 System.out.println();
-                propertyMap.put(docId.toString(), docTitle);
+                propertyMap.put("DocumentTitle: " + docTitle, "ID: " + docId.toString());
             }
 
         } catch (Exception e) {
             log.error("Cannot find documents by property", e);
         }
-        return propertyMap;
+        return propertyValues;
     }
 
     public Id createDocument(Map<String, Object> propertyValues, String documentTitle) {
@@ -170,6 +179,7 @@ public class FilenetService {
                     AutoUniqueName.AUTO_UNIQUE, "New Document via Java Api",
                     DefineSecurityParentage.DO_NOT_DEFINE_SECURITY_PARENTAGE);
             rcr.save(RefreshMode.NO_REFRESH);
+
 
             propertyFilter.addIncludeProperty(new FilterElement(null, null, null, "DocumentTitle",
                     null));
