@@ -83,46 +83,40 @@ public class FilenetService {
         return propertyMap;
     }
 
-    public Map<String, Object> getDocumentsByParameters(Map propertyValues) {
+    public Map<String, Object> getDocumentsByParameters(Map customQuery) {
 
         Map<String, Object> propertyMap = new HashMap<>();
 
         try {
-
             new FilenetConnection().connect();
-
             ObjectStore objectStore = new FilenetConnection().getObjectStore();
 
             SearchSQL sqlObject = new SearchSQL();
-            sqlObject.setSelectList("d.DocumentTitle, d.Id");
+            sqlObject.setSelectList("d.DocumentTitle, d.Creator, d.Id");
             sqlObject.setMaxRecords(20);
             sqlObject.setFromClauseInitialValue("Document", "d", true);
+            String whereClause = "";
 
-//            String whereClause =""
-//            for (String key : propertyValues.keySet()) {
-//                String[] strArr = propertyValues.get(key);
-//                for (String val : strArr) {
-//                                String whereClause =
-//                                        "d."+key+"=" + FilenetConfig.Properties.DOCUMENT_TITLE + "'";
-//                    System.out.println(key + " " + val);
-//                }
-//            }
-//
-//            sqlObject.setWhereClause(whereClause);
-
-            System.out.println("SQL: " + sqlObject.toString());
+            int i = 0;
+            for (Object key : customQuery.keySet()) {
+                String[] strArr = (String[]) customQuery.get(key);
+                for (String val : strArr) {
+                    whereClause +=
+                            "d." + key + "= '" + val + "'";
+                    if (!(++i == customQuery.keySet().size())) {
+                        whereClause += " AND ";
+                    }
+                }
+            }
+            sqlObject.setWhereClause(whereClause);
 
             SearchScope search = new SearchScope(objectStore);
-
             Integer myPageSize = 100;
-
             PropertyFilter myFilter = new PropertyFilter();
             int myFilterLevel = 1;
             myFilter.setMaxRecursion(myFilterLevel);
             myFilter.addIncludeType(new FilterElement(null, null, null, FilteredPropertyType.ANY, null));
-
             Boolean continuable = new Boolean(true);
-
             RepositoryRowSet myRows = search.fetchRows(sqlObject, myPageSize, myFilter, continuable);
 
             int rowCount = 0;
@@ -130,26 +124,31 @@ public class FilenetService {
             while (iter.hasNext()) {
                 RepositoryRow row = (RepositoryRow) iter.next();
 
-                String docTitle = row.getProperties().get("DocumentTitle").getStringValue();
-                Id docId = row.getProperties().get("Id").getIdValue();
+                for (Object key : customQuery.keySet()) {
+                    String[] strArr = (String[]) customQuery.get(key);
+                    for (String val : strArr) {
+                        String docValue = row.getProperties().get(String.valueOf(key)).getStringValue();
 
-                rowCount++;
-                System.out.print(" row " + rowCount + ":");
-                if (docTitle != null) {
-                    System.out.print(" DocumentTitle= " + docTitle);
+                        Id docId = row.getProperties().get("Id").getIdValue();
+
+                        rowCount++;
+                        System.out.print(" row " + rowCount + ":");
+                        if (docValue != null) {
+                            System.out.print("  " + key + "= " + docValue);
+                        }
+                        System.out.print(" ID= " + docId.toString());
+                        System.out.println();
+                        propertyMap.put(key + ": " + docValue, "ID: " + docId);
+                    }
                 }
-                System.out.print(" ID= " + docId.toString());
-                System.out.println();
-                propertyMap.put("DocumentTitle: " + docTitle, "ID: " + docId.toString());
             }
-
         } catch (Exception e) {
             log.error("Cannot find documents by property", e);
         }
-        return propertyValues;
+        return propertyMap;
     }
 
-    public Id createDocument(Map<String, Object> propertyValues, String documentTitle) {
+    public Id createDocument(String documentTitle) {
 
 
         try {
