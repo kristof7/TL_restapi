@@ -80,7 +80,7 @@ public class FilenetService {
         return propertyMap;
     }
 
-    public List<Map> getDocumentsByParameters(Map customQuery) {
+    public List<Map> getDocumentsByGetParams(Map customQuery) {
 
         List<Map> results = new ArrayList<>();
 

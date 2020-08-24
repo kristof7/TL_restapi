@@ -74,7 +74,7 @@ public class RestApiController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/search")
-    public List<Map> searchByParameters(HttpServletRequest request,
+    public List<Map> searchDocumentsByGetParams(HttpServletRequest request,
                                                                @RequestParam Map<String, String[]> customQuery) {
 
         Response response = new Response(request, RequestExceptionConfig.GET);
@@ -88,7 +88,7 @@ public class RestApiController {
                 }
             }
             List<Map> responsePayload;
-            responsePayload = filenetService.getDocumentsByParameters(customQuery);
+            responsePayload = filenetService.getDocumentsByGetParams(customQuery);
             String responseBody = mapper.writeValueAsString(responsePayload);
 
             response.setBody(responseBody);
@@ -98,5 +98,9 @@ public class RestApiController {
             response.updateByException(e);
             return new ArrayList<>();
         }
+    }
+
+    public List<Map> searchDocumentsByPostParams() {
+        return null;
     }
 }
