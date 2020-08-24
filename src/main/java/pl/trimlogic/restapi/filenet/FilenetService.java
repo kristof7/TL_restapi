@@ -20,10 +20,7 @@ import pl.trimlogic.restapi.exception.FilenetException;
 import pl.trimlogic.restapi.exception.InvalidIdException;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -83,64 +80,61 @@ public class FilenetService {
         return propertyMap;
     }
 
-    public Map<String, Object> getDocumentsByParameters() {
+    public List<Map> getDocumentsByParameters(Map customQuery) {
 
-        Map<String, Object> propertyMap = new HashMap<>();
+        List<Map> results = new ArrayList<>();
 
         try {
-
             new FilenetConnection().connect();
-
             ObjectStore objectStore = new FilenetConnection().getObjectStore();
 
             SearchSQL sqlObject = new SearchSQL();
-            sqlObject.setSelectList("d.DocumentTitle, d.Id");
+            sqlObject.setSelectList("d.DocumentTitle, d.Creator, d.Id");
             sqlObject.setMaxRecords(20);
             sqlObject.setFromClauseInitialValue("Document", "d", true);
-            String whereClause = "d.DocumentTitle LIKE 'newdocument'";
+            String whereClause = "";
 
+            int i = 0;
+            for (Object key : customQuery.keySet()) {
+                String[] strArr = (String[]) customQuery.get(key);
+                for (String val : strArr) {
+                    whereClause +=
+                            "d." + key + "= '" + val + "'";
+                    if (!(++i == customQuery.keySet().size())) {
+                        whereClause += " AND ";
+                    }
+                }
+            }
             sqlObject.setWhereClause(whereClause);
 
-            System.out.println("SQL: " + sqlObject.toString());
-
             SearchScope search = new SearchScope(objectStore);
-
             Integer myPageSize = 100;
-
             PropertyFilter myFilter = new PropertyFilter();
             int myFilterLevel = 1;
             myFilter.setMaxRecursion(myFilterLevel);
             myFilter.addIncludeType(new FilterElement(null, null, null, FilteredPropertyType.ANY, null));
-
             Boolean continuable = new Boolean(true);
-
             RepositoryRowSet myRows = search.fetchRows(sqlObject, myPageSize, myFilter, continuable);
 
-            int rowCount = 0;
             Iterator iter = myRows.iterator();
             while (iter.hasNext()) {
                 RepositoryRow row = (RepositoryRow) iter.next();
+                Iterator propIt = row.getProperties().iterator();
+                Map<String, Object> propertyMap = new HashMap<>();
 
-                String docTitle = row.getProperties().get("DocumentTitle").getStringValue();
-                Id docId = row.getProperties().get("Id").getIdValue();
-
-                rowCount++;
-                System.out.print(" row " + rowCount + ":");
-                System.out.print(" Id= " + docId.toString());
-                if (docTitle != null) {
-                    System.out.print(" DocumentTitle= " + docTitle);
+                while (propIt.hasNext()) {
+                    Property prop = (Property) propIt.next();
+                    propertyMap.put(prop.getPropertyName(), "" + prop.getObjectValue());
                 }
-                System.out.println();
-                propertyMap.put(docId.toString(), docTitle);
+                results.add(propertyMap);
             }
-
         } catch (Exception e) {
             log.error("Cannot find documents by property", e);
         }
-        return propertyMap;
+        return results;
     }
 
-    public Id createDocument(Map<String, Object> propertyValues, String documentTitle) {
+    public Id createDocument(String documentTitle) {
 
 
         try {

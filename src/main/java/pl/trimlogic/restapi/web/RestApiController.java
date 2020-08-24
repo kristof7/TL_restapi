@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import pl.trimlogic.restapi.filenet.FilenetService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -56,11 +58,10 @@ public class RestApiController {
         Response response = new Response(request, RequestExceptionConfig.POST);
 
         try {
-            Id docId = filenetService.createDocument(properties, documentTitle);
+            Id docId = filenetService.createDocument(documentTitle);
             if (docId == null) {
                 return response.asResponseEntity();
             }
-
             Map<String, Object> responsePayload =
                     filenetService.getDocumentProperties(docId);
             String responseBody = mapper.writeValueAsString(responsePayload);
@@ -72,21 +73,30 @@ public class RestApiController {
         return response.asResponseEntity();
     }
 
-    @GetMapping("/search")
-    public ResponseEntity searchForParams(HttpServletRequest request) {
+    @RequestMapping(method = RequestMethod.GET, value = "/search")
+    public List<Map> searchByParameters(HttpServletRequest request,
+                                                               @RequestParam Map<String, String[]> customQuery) {
 
         Response response = new Response(request, RequestExceptionConfig.GET);
 
         try {
-
-            Map<String, Object> responsePayload = filenetService.getDocumentsByParameters();
+            customQuery = request.getParameterMap();
+            for (String key : customQuery.keySet()) {
+                String[] strArr = customQuery.get(key);
+                for (String val : strArr) {
+                    System.out.println(key + " " + val);
+                }
+            }
+            List<Map> responsePayload;
+            responsePayload = filenetService.getDocumentsByParameters(customQuery);
             String responseBody = mapper.writeValueAsString(responsePayload);
+
             response.setBody(responseBody);
             response.setStatus(HttpStatus.OK);
-
+            return responsePayload;
         } catch (Exception e) {
             response.updateByException(e);
+            return new ArrayList<>();
         }
-        return response.asResponseEntity();
     }
 }
