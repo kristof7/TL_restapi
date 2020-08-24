@@ -14,8 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import pl.trimlogic.restapi.filenet.FilenetService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Slf4j
 @RestController
@@ -73,7 +74,7 @@ public class RestApiController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/search")
-    public Set<Map.Entry<String, String[]>> searchByParameters(HttpServletRequest request,
+    public List<Map> searchByParameters(HttpServletRequest request,
                                                                @RequestParam Map<String, String[]> customQuery) {
 
         Response response = new Response(request, RequestExceptionConfig.GET);
@@ -86,16 +87,16 @@ public class RestApiController {
                     System.out.println(key + " " + val);
                 }
             }
-            Map<String, Object> responsePayload;
+            List<Map> responsePayload;
             responsePayload = filenetService.getDocumentsByParameters(customQuery);
             String responseBody = mapper.writeValueAsString(responsePayload);
 
             response.setBody(responseBody);
             response.setStatus(HttpStatus.OK);
-
+            return responsePayload;
         } catch (Exception e) {
             response.updateByException(e);
+            return new ArrayList<>();
         }
-        return customQuery.entrySet();
     }
 }

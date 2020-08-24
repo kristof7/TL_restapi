@@ -20,10 +20,7 @@ import pl.trimlogic.restapi.exception.FilenetException;
 import pl.trimlogic.restapi.exception.InvalidIdException;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -83,9 +80,9 @@ public class FilenetService {
         return propertyMap;
     }
 
-    public Map<String, Object> getDocumentsByParameters(Map customQuery) {
+    public List<Map> getDocumentsByParameters(Map customQuery) {
 
-        Map<String, Object> propertyMap = new HashMap<>();
+        List<Map> results = new ArrayList<>();
 
         try {
             new FilenetConnection().connect();
@@ -119,33 +116,22 @@ public class FilenetService {
             Boolean continuable = new Boolean(true);
             RepositoryRowSet myRows = search.fetchRows(sqlObject, myPageSize, myFilter, continuable);
 
-            int rowCount = 0;
             Iterator iter = myRows.iterator();
             while (iter.hasNext()) {
                 RepositoryRow row = (RepositoryRow) iter.next();
+                Iterator propIt = row.getProperties().iterator();
+                Map<String, Object> propertyMap = new HashMap<>();
 
-                for (Object key : customQuery.keySet()) {
-                    String[] strArr = (String[]) customQuery.get(key);
-                    for (String val : strArr) {
-                        String docValue = row.getProperties().get(String.valueOf(key)).getStringValue();
-
-                        Id docId = row.getProperties().get("Id").getIdValue();
-
-                        rowCount++;
-                        System.out.print(" row " + rowCount + ":");
-                        if (docValue != null) {
-                            System.out.print("  " + key + "= " + docValue);
-                        }
-                        System.out.print(" ID= " + docId.toString());
-                        System.out.println();
-                        propertyMap.put(key + ": " + docValue, "ID: " + docId);
-                    }
+                while (propIt.hasNext()) {
+                    Property prop = (Property) propIt.next();
+                    propertyMap.put(prop.getPropertyName(), "" + prop.getObjectValue());
                 }
+                results.add(propertyMap);
             }
         } catch (Exception e) {
             log.error("Cannot find documents by property", e);
         }
-        return propertyMap;
+        return results;
     }
 
     public Id createDocument(String documentTitle) {
@@ -178,7 +164,6 @@ public class FilenetService {
                     AutoUniqueName.AUTO_UNIQUE, "New Document via Java Api",
                     DefineSecurityParentage.DO_NOT_DEFINE_SECURITY_PARENTAGE);
             rcr.save(RefreshMode.NO_REFRESH);
-
 
             propertyFilter.addIncludeProperty(new FilterElement(null, null, null, "DocumentTitle",
                     null));

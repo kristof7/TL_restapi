@@ -68,7 +68,6 @@ class FilenetConfig {
             }
             return propertyFilter;
 
-
         }
     }
 }
