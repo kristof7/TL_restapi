@@ -74,6 +74,7 @@ public class RestApiController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/search")
+    @ResponseStatus(HttpStatus.OK)
     public List<Map> searchDocumentsByGetParams(HttpServletRequest request,
                                                                @RequestParam Map<String, String[]> customQuery) {
 
@@ -81,18 +82,11 @@ public class RestApiController {
 
         try {
             customQuery = request.getParameterMap();
-            for (String key : customQuery.keySet()) {
-                String[] strArr = customQuery.get(key);
-                for (String val : strArr) {
-                    System.out.println(key + " " + val);
-                }
-            }
             List<Map> responsePayload;
             responsePayload = filenetService.getDocumentsByGetParams(customQuery);
             String responseBody = mapper.writeValueAsString(responsePayload);
 
             response.setBody(responseBody);
-            response.setStatus(HttpStatus.OK);
             return responsePayload;
         } catch (Exception e) {
             response.updateByException(e);
@@ -100,7 +94,22 @@ public class RestApiController {
         }
     }
 
-    public List<Map> searchDocumentsByPostParams() {
-        return null;
+    @RequestMapping(method = RequestMethod.POST, value = "/search")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Map> searchDocumentsByPostParams(HttpServletRequest request,
+                                                 @RequestBody Map<String, String> customQuery) {
+
+        Response response = new Response(request, RequestExceptionConfig.POST);
+        try {
+
+            List<Map> responsePayload;
+            responsePayload = filenetService.getDocumentsByPostParams(customQuery);
+            response.setBody(responsePayload);
+
+            return responsePayload;
+        } catch (Exception e) {
+            response.updateByException(e);
+            return new ArrayList<>();
+        }
     }
 }

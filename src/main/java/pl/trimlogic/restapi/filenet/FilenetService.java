@@ -134,6 +134,64 @@ public class FilenetService {
         return results;
     }
 
+
+    public List<Map> getDocumentsByPostParams(Map customQuery) {
+
+        List<Map> results = new ArrayList<>();
+
+        try {
+            new FilenetConnection().connect();
+            ObjectStore objectStore = new FilenetConnection().getObjectStore();
+
+            SearchSQL sqlObject = new SearchSQL();
+            sqlObject.setSelectList("d.DocumentTitle, d.Creator, d.Id");
+            sqlObject.setMaxRecords(20);
+            sqlObject.setFromClauseInitialValue("Document", "d", true);
+//            String whereClause = "";
+//
+//            int i = 0;
+//            for (Object key : customQuery.keySet()) {
+//                String[] strArr = (String[]) customQuery.get(key);
+//                for (String val : strArr) {
+//                    whereClause +=
+//                            "d." + key + "= '" + val + "'";
+//                    if (!(++i == customQuery.keySet().size())) {
+//                        whereClause += " AND ";
+//                    }
+//                }
+//            }
+//            sqlObject.setWhereClause(whereClause);
+
+            SearchScope search = new SearchScope(objectStore);
+            Integer myPageSize = 100;
+            PropertyFilter myFilter = new PropertyFilter();
+            int myFilterLevel = 1;
+            myFilter.setMaxRecursion(myFilterLevel);
+            myFilter.addIncludeType(new FilterElement(null, null, null, FilteredPropertyType.ANY, null));
+            Boolean continuable = Boolean.TRUE;
+            RepositoryRowSet myRows = search.fetchRows(sqlObject, myPageSize, myFilter, continuable);
+
+            Iterator iter = myRows.iterator();
+            while (iter.hasNext()) {
+                RepositoryRow row = (RepositoryRow) iter.next();
+                Iterator propIt = row.getProperties().iterator();
+                Map<String, Object> propertyMap = new HashMap<>();
+
+                while (propIt.hasNext()) {
+                    Property prop = (Property) propIt.next();
+                    propertyMap.put(prop.getPropertyName(), "" + prop.getObjectValue());
+                }
+                results.add(propertyMap);
+            }
+        } catch (Exception e) {
+            log.error("Cannot find documents by property", e);
+        }
+        return results;
+    }
+
+
+
+
     public Id createDocument(String documentTitle) {
 
 
