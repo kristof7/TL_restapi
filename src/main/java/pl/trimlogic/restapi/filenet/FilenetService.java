@@ -147,20 +147,21 @@ public class FilenetService {
             sqlObject.setSelectList("d.DocumentTitle, d.Creator, d.Id");
             sqlObject.setMaxRecords(20);
             sqlObject.setFromClauseInitialValue("Document", "d", true);
-//            String whereClause = "";
-//
-//            int i = 0;
-//            for (Object key : customQuery.keySet()) {
-//                String[] strArr = (String[]) customQuery.get(key);
-//                for (String val : strArr) {
-//                    whereClause +=
-//                            "d." + key + "= '" + val + "'";
-//                    if (!(++i == customQuery.keySet().size())) {
-//                        whereClause += " AND ";
-//                    }
-//                }
-//            }
-//            sqlObject.setWhereClause(whereClause);
+
+            String whereClause = "";
+            Iterator keyIt = customQuery.keySet().iterator();
+            while (keyIt.hasNext()) {
+                Iterator valIt = customQuery.values().iterator();
+                while (valIt.hasNext()) {
+                    whereClause +=
+                            "d." + keyIt.next().toString() + "= '" + valIt.next().toString() + "'";
+                    if (keyIt.hasNext()) {
+                        whereClause += " AND ";
+                    }
+                }
+            }
+
+            sqlObject.setWhereClause(whereClause);
 
             SearchScope search = new SearchScope(objectStore);
             Integer myPageSize = 100;
