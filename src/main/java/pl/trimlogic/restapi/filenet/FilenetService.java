@@ -144,20 +144,22 @@ public class FilenetService {
             ObjectStore objectStore = new FilenetConnection().getObjectStore();
 
             SearchSQL sqlObject = new SearchSQL();
-            sqlObject.setSelectList("d.DocumentTitle, d.Creator, d.Id");
+            sqlObject.setSelectList("d.DocumentTitle, d.Creator, d.Id, d.DateCreated");
             sqlObject.setMaxRecords(20);
             sqlObject.setFromClauseInitialValue("Document", "d", true);
 
             String whereClause = "";
             Iterator keyIt = customQuery.keySet().iterator();
             while (keyIt.hasNext()) {
-                Iterator valIt = customQuery.values().iterator();
-                while (valIt.hasNext()) {
-                    whereClause +=
-                            "d." + keyIt.next().toString() + "= '" + valIt.next().toString() + "'";
-                    if (keyIt.hasNext()) {
-                        whereClause += " AND ";
-                    }
+
+                String key = (String) keyIt.next();
+
+                Object value = customQuery.get(key);
+
+                whereClause += "d." + key + "= '" + value + "'";
+
+                if (keyIt.hasNext()) {
+                    whereClause += " AND ";
                 }
             }
 

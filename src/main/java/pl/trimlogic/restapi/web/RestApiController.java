@@ -97,7 +97,7 @@ public class RestApiController {
     @RequestMapping(method = RequestMethod.POST, value = "/search")
     @ResponseStatus(HttpStatus.OK)
     public List<Map> searchDocumentsByPostParams(HttpServletRequest request,
-                                                 @RequestBody Map<String, String> customQuery) {
+                                                 @RequestBody Map<String, Object> customQuery) {
 
         Response response = new Response(request, RequestExceptionConfig.POST);
         try {
