@@ -56,10 +56,6 @@ public class FilenetService {
 
             document.fetchProperties(propertyFilter);
 
-            Properties props = document.getProperties();
-
-            Iterator iter = props.iterator();
-
             Iterator propertyIterator = document.getProperties().iterator();
             while (propertyIterator.hasNext()) {
                 Property property = (Property) propertyIterator.next();
@@ -80,6 +76,7 @@ public class FilenetService {
         return propertyMap;
     }
 
+    @SuppressWarnings("DuplicatedCode")
     public List<Map> getDocumentsByGetParams(Map customQuery) {
 
         List<Map> results = new ArrayList<>();
@@ -135,6 +132,7 @@ public class FilenetService {
     }
 
 
+    @SuppressWarnings("DuplicatedCode")
     public List<Map> getDocumentsByPostParams(Map customQuery) {
 
         List<Map> results = new ArrayList<>();
@@ -161,18 +159,27 @@ public class FilenetService {
                     Iterator<?> valueMapIt = ((LinkedHashMap<?, ?>) value).keySet().iterator();
                     String valueForDate;
                     String operator = "";
-                    String date = null;
+                    String date1 = null;
+                    String date2 = null;
                     while (valueMapIt.hasNext()) {
                         String keyForDate = (String) valueMapIt.next();
                         valueForDate = (String) ((LinkedHashMap<?, ?>) value).get(keyForDate);
-                        if (keyForDate.equals("value")) {
-                            date = valueForDate;
+                        if (keyForDate.equals("value1")) {
+                            date1 = valueForDate;
+                        }
+                        if (keyForDate.equals("value2")) {
+                            date2 = valueForDate;
                         }
                         if (valueForDate.equals("gt")) {
                             operator = " >= ";
+                        } else if (valueForDate.equals("lt")) {
+                            operator = " <= ";
+                        } else if (valueForDate.equals("gt-lt")) {
+                            operator = " >= ";
+                            date1 += " AND " + "d." + key + " <= " + date2;
                         }
                     }
-                    whereClause += "d." + key + operator + date;
+                    whereClause += "d." + key + operator + date1;
                     continue;
                 }
 
