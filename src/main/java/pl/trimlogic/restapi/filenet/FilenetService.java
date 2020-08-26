@@ -156,6 +156,26 @@ public class FilenetService {
 
                 Object value = customQuery.get(key);
 
+                if (value instanceof LinkedHashMap) {
+
+                    Iterator<?> valueMapIt = ((LinkedHashMap<?, ?>) value).keySet().iterator();
+                    String valueForDate;
+                    String operator = "";
+                    String date = null;
+                    while (valueMapIt.hasNext()) {
+                        String keyForDate = (String) valueMapIt.next();
+                        valueForDate = (String) ((LinkedHashMap<?, ?>) value).get(keyForDate);
+                        if (keyForDate.equals("value")) {
+                            date = valueForDate;
+                        }
+                        if (valueForDate.equals("gt")) {
+                            operator = " >= ";
+                        }
+                    }
+                    whereClause += "d." + key + operator + date;
+                    continue;
+                }
+
                 whereClause += "d." + key + "= '" + value + "'";
 
                 if (keyIt.hasNext()) {
