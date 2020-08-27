@@ -164,6 +164,12 @@ public class FilenetService {
                         if (operator != null) {
                             if (operator.equals("equals")) {
                                 whereClause += "d." + key + "= '" + value + "'";
+                            } else if (operator.equals("startswith")) {
+                                whereClause += "d." + key + " LIKE '" + value + "%'";
+                            } else if (operator.equals("contains")) {
+                                whereClause += "d." + key + " LIKE '%" + value + "%'";
+                            } else if (operator.equals("endswith")) {
+                                whereClause += "d." + key + " LIKE '%" + value + "'";
                             }
                         }
                         if (keyIt.hasNext()) {
@@ -192,6 +198,7 @@ public class FilenetService {
                         whereClause += "d." + key + operatorSign + date1;
                 }
             }
+            System.out.println("wherecouse: " + whereClause);
             sqlObject.setWhereClause(whereClause);
 
 
