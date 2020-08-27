@@ -56,10 +56,6 @@ public class FilenetService {
 
             document.fetchProperties(propertyFilter);
 
-            Properties props = document.getProperties();
-
-            Iterator iter = props.iterator();
-
             Iterator propertyIterator = document.getProperties().iterator();
             while (propertyIterator.hasNext()) {
                 Property property = (Property) propertyIterator.next();
@@ -80,6 +76,7 @@ public class FilenetService {
         return propertyMap;
     }
 
+    @SuppressWarnings("DuplicatedCode")
     public List<Map> getDocumentsByGetParams(Map customQuery) {
 
         List<Map> results = new ArrayList<>();
@@ -135,6 +132,7 @@ public class FilenetService {
     }
 
 
+    @SuppressWarnings("DuplicatedCode")
     public List<Map> getDocumentsByPostParams(Map customQuery) {
 
         List<Map> results = new ArrayList<>();
@@ -144,24 +142,65 @@ public class FilenetService {
             ObjectStore objectStore = new FilenetConnection().getObjectStore();
 
             SearchSQL sqlObject = new SearchSQL();
-            sqlObject.setSelectList("d.DocumentTitle, d.Creator, d.Id");
+            sqlObject.setSelectList("d.DocumentTitle, d.Creator, d.Id, d.DateCreated");
             sqlObject.setMaxRecords(20);
             sqlObject.setFromClauseInitialValue("Document", "d", true);
 
             String whereClause = "";
             Iterator keyIt = customQuery.keySet().iterator();
             while (keyIt.hasNext()) {
-                Iterator valIt = customQuery.values().iterator();
-                while (valIt.hasNext()) {
-                    whereClause +=
-                            "d." + keyIt.next().toString() + "= '" + valIt.next().toString() + "'";
-                    if (keyIt.hasNext()) {
-                        whereClause += " AND ";
-                    }
+
+                String key = (String) keyIt.next();
+                LinkedHashMap<String, String> paramObject = (LinkedHashMap) customQuery.get(key);
+                String dataType = paramObject.get("data_type");
+
+                switch (dataType) {
+
+                    case "STRING":
+
+                        String operator = paramObject.get("operator");
+                        String value = paramObject.get("value");
+
+                        if (operator != null) {
+                            if (operator.equals("equals")) {
+                                whereClause += "d." + key + "= '" + value + "'";
+                            } else if (operator.equals("startswith")) {
+                                whereClause += "d." + key + " LIKE '" + value + "%'";
+                            } else if (operator.equals("contains")) {
+                                whereClause += "d." + key + " LIKE '%" + value + "%'";
+                            } else if (operator.equals("endswith")) {
+                                whereClause += "d." + key + " LIKE '%" + value + "'";
+                            }
+                        }
+                        if (keyIt.hasNext()) {
+                            whereClause += " AND ";
+                        }
+                        if (!key.equals("DateCreated")) {
+                            break;
+                        }
+
+                    case "DATE":
+                        String operatorDate = paramObject.get("operator");
+                        String date1 = paramObject.get("value1");
+                        String date2 = paramObject.get("value2");
+                        String operatorSign = "";
+
+                        if (operatorDate != null) {
+                            if (operatorDate.equals("gt")) {
+                                operatorSign = " >= ";
+                            } else if (operatorDate.equals("ls")) {
+                                operatorSign = " <= ";
+                            } else if (operatorDate.equals("gt-ls")) {
+                                operatorSign = " >= ";
+                                date1 += " AND " + "d." + key + " <= " + date2;
+                            }
+                        }
+                        whereClause += "d." + key + operatorSign + date1;
                 }
             }
-
+            System.out.println("wherecouse: " + whereClause);
             sqlObject.setWhereClause(whereClause);
+
 
             SearchScope search = new SearchScope(objectStore);
             Integer myPageSize = 100;
@@ -189,8 +228,6 @@ public class FilenetService {
         }
         return results;
     }
-
-
 
 
     public Id createDocument(String documentTitle) {
