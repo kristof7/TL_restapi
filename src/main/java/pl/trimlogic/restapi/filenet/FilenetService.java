@@ -151,46 +151,49 @@ public class FilenetService {
             while (keyIt.hasNext()) {
 
                 String key = (String) keyIt.next();
+                LinkedHashMap<String, String> paramObject = (LinkedHashMap) customQuery.get(key);
+                String dataType = paramObject.get("data_type");
 
-                Object value = customQuery.get(key);
+                switch (dataType) {
 
-                if (value instanceof LinkedHashMap) {
+                    case "STRING":
 
-                    Iterator<?> valueMapIt = ((LinkedHashMap<?, ?>) value).keySet().iterator();
-                    String valueForDate;
-                    String operator = "";
-                    String date1 = null;
-                    String date2 = null;
-                    while (valueMapIt.hasNext()) {
-                        String keyForDate = (String) valueMapIt.next();
-                        valueForDate = (String) ((LinkedHashMap<?, ?>) value).get(keyForDate);
-                        if (keyForDate.equals("value1")) {
-                            date1 = valueForDate;
+                        String operator = paramObject.get("operator");
+                        String value = paramObject.get("value");
+
+                        if (operator != null) {
+                            if (operator.equals("equals")) {
+                                whereClause += "d." + key + "= '" + value + "'";
+                            }
                         }
-                        if (keyForDate.equals("value2")) {
-                            date2 = valueForDate;
+                        if (keyIt.hasNext()) {
+                            whereClause += " AND ";
                         }
-                        if (valueForDate.equals("gt")) {
-                            operator = " >= ";
-                        } else if (valueForDate.equals("lt")) {
-                            operator = " <= ";
-                        } else if (valueForDate.equals("gt-lt")) {
-                            operator = " >= ";
-                            date1 += " AND " + "d." + key + " <= " + date2;
+                        if (!key.equals("DateCreated")) {
+                            break;
                         }
-                    }
-                    whereClause += "d." + key + operator + date1;
-                    continue;
-                }
 
-                whereClause += "d." + key + "= '" + value + "'";
+                    case "DATE":
+                        String operatorDate = paramObject.get("operator");
+                        String date1 = paramObject.get("value1");
+                        String date2 = paramObject.get("value2");
+                        String operatorSign = "";
 
-                if (keyIt.hasNext()) {
-                    whereClause += " AND ";
+                        if (operatorDate != null) {
+                            if (operatorDate.equals("gt")) {
+                                operatorSign = " >= ";
+                            } else if (operatorDate.equals("ls")) {
+                                operatorSign = " <= ";
+                            } else if (operatorDate.equals("gt-ls")) {
+                                operatorSign = " >= ";
+                                date1 += " AND " + "d." + key + " <= " + date2;
+                            }
+                        }
+                        whereClause += "d." + key + operatorSign + date1;
                 }
             }
-
             sqlObject.setWhereClause(whereClause);
+
 
             SearchScope search = new SearchScope(objectStore);
             Integer myPageSize = 100;
@@ -218,8 +221,6 @@ public class FilenetService {
         }
         return results;
     }
-
-
 
 
     public Id createDocument(String documentTitle) {
